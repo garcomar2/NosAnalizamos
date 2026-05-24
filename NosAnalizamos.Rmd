@@ -85,3 +85,16 @@ datos %>%
   geom_boxplot()
 ```
 
+# Añadir Sexo
+
+```{r}
+datos %>%
+  pivot_longer(all_of(asignaturas), names_to = "Asignatura", values_to = "Nota") %>%
+  ggplot(aes(x = Asignatura, y = Nota, fill = Sex)) +
+  geom_boxplot()
+```
+
+
+
+
+
