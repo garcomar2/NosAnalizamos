@@ -19,9 +19,9 @@ p_load(tidyverse, mice, knitr, validate, deducorrect, VIM, GGally)
 
 ```{r}
 datos <- read.delim(
-  "data/NosAutoanalizamos2022 - Hoja1.tsv",
+  "data/NosAutoanalizamos2026 - NosAutoanalizamos (1).tsv",
   header = TRUE,
-  skip = 25,
+  skip = 28,
   stringsAsFactors = FALSE)
 
 datos %>% filter(!is.na(Id) & Id != "")
@@ -43,6 +43,9 @@ limpiar_nota <- function(x) {
 }
 
 datos[asignaturas] <- lapply(datos[asignaturas], limpiar_nota)
+
+datos$Wr.Hnd <- as.numeric(gsub(",", ".", datos$Wr.Hnd))
+datos$Height <- as.numeric(datos$Height)
 ```
 
 
@@ -107,5 +110,69 @@ datos %>%
 ```
 
 
+# Preguntas
+
+```{r}
+# ¿Qué edad, expresada en años (con decimales) tiene el alumno más joven a fecha 01/02/2026.
+
+fecha_ref <- as.Date("2026-02-01")
+datos %>%
+  mutate(edad = as.numeric(fecha_ref - dmy(FechaNac.DD.MM.YYY.)) / 365.25) %>%
+  slice_min(edad) %>%
+  select(Id, edad) %>% print()
+
+# Cuántos alumnos simultanean trabajo y estudios.
+
+sum(datos$Hwork > 0, na.rm = TRUE)
+
+# Hay más hombres o más mujeres fumadoras.
+
+table(datos$Sex, datos$Smoke)
+
+# Hay mas hombres fumadores
+
+# Cuál es el valor medio y la varianza de la variable Wr.Hnd según el sexo.
+
+datos %>%
+  group_by(Sex) %>%
+  summarise(media = mean(Wr.Hnd, na.rm = TRUE),
+            varianza = var(Wr.Hnd, na.rm = TRUE))
+
+# Determina si existe relación entre el sexo y la mano con la que se escribe  (NW.Hnd)
+t <- table(datos$Sex, datos$NW.Hnd)
+t
+chisq.test(t)
+
+# Existe una relación lineal entre la altura (Height) y la distancia del extremo del meñique al extremo del pulgar de la mano con la que escribimos (Wr.Hnd)
+
+cor.test(datos$Height, datos$Wr.Hnd)
+
+# El identificador de Hampel detecta algún outlier en la variable altura.
+
+altura <- datos$Height
+mediana <- median(altura, na.rm = TRUE)
+MAD <- mad(altura, na.rm = TRUE)
+
+altura[abs(altura - mediana) > 3 * MAD]
+
+# Considera la asignatura FP. Si queremos realizar una imputación generalizada usando la media, ¿qué valor deberíamos utilizar ?
+
+mean(datos$FP, na.rm = TRUE)
+
+# Define una nueva variable (PulseCat) a partir del ritmo cardíaco (Pulse), con dos valores PulseH, si Pulse>=65 y PulseL si Pulse<65. ¿Qué valores utilizarías para imputar los valores faltantes de las notas de FP, dependiendo del valor de PulseCat (imputación por casos similares)
+
+datos <- datos %>%
+  mutate(PulseCat = ifelse(Pulse >= 65, "PulseH", "PulseL"))
+
+datos %>%
+  group_by(PulseCat) %>%
+  summarise(media_FP = mean(FP, na.rm = TRUE)) %>% print()
+
+# ¿Qué podemos decir, como científicos de datos, ante esta frase referida a nuestros datos ? "El ritmo cardíaco está ligado con la cantidad de sangre que llega al cerebro, por tanto existirá una relación lineal directa esta esta variable y las calificaciones obtenidas en ALG"
+
+cor.test(datos$Pulse, datos$ALG)
+
+# Los datos no apoyan la afirmación. No podemos aceptarla.
+```
 
 
