@@ -15,6 +15,17 @@ knitr::opts_chunk$set(echo = TRUE)
 library(pacman)
 p_load(tidyverse, mice, knitr, validate, deducorrect, VIM, GGally)
 ```
+## Cargar datos
+
+```{r}
+datos <- read.delim(
+  "data/NosAutoanalizamos2022 - Hoja1.tsv",
+  header = TRUE,
+  skip = 25,
+  stringsAsFactors = FALSE)
+
+datos %>% filter(!is.na(Id) & Id != "")
+```
 
 
 
