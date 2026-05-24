@@ -94,6 +94,17 @@ datos %>%
   geom_boxplot()
 ```
 
+# Alumnos
+
+```{r}
+datos %>%
+  filter(if_all(all_of(asignaturas), ~ !is.na(.))) %>%
+  pivot_longer(all_of(asignaturas), names_to = "Asignatura", values_to = "Nota") %>%
+  ggplot(aes(x = Id, y = Nota, color = Asignatura, group = Asignatura)) +
+  geom_line() +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90))
+```
 
 
 
