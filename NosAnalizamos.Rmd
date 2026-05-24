@@ -27,5 +27,24 @@ datos <- read.delim(
 datos %>% filter(!is.na(Id) & Id != "")
 ```
 
+# Limpieza
+
+```{r}
+datos <- datos %>% filter(Id != "martsobm")
+
+asignaturas <- c("ALG", "ANM", "FP", "DCS", "MD")
+
+limpiar_nota <- function(x) {
+  x <- as.character(x)
+  x <- gsub(",", ".", x)
+  x[x == "NC"] <- "3"
+  x[x %in% c("NP", "NA", "N/A", "")] <- NA
+  return(as.numeric(x))
+}
+
+datos[asignaturas] <- lapply(datos[asignaturas], limpiar_nota)
+```
+
+
 
 
