@@ -2,7 +2,9 @@
 title: "NosAnalizamos"
 author: "Marccos García Collado"
 date: "2026-05-04"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -46,6 +48,9 @@ datos[asignaturas] <- lapply(datos[asignaturas], limpiar_nota)
 
 datos$Wr.Hnd <- as.numeric(gsub(",", ".", datos$Wr.Hnd))
 datos$Height <- as.numeric(datos$Height)
+
+Notas <- datos %>% select(all_of(asignaturas))
+save(Notas, file = "Notas.Rdata")
 ```
 
 
